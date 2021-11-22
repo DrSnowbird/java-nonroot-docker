@@ -1,0 +1,62 @@
+version: '3.1' 
+
+services:
+  java11-non-root:
+    container_name: java11-non-root
+    image: openkbs/java11-non-root
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    gpus: all
+    env_file:
+      - ./.env
+    environment:
+      - CONTAINER_NAME=java11-non-root
+      - USER_ID=${USER_ID:-1000}
+      - GROUP_ID=${GROUP_ID:-1000}
+      # - APP_HOME=${APP_HOME:-/home/developer/app}
+      # - APP_MAIN=${APP_MAIN:-setup.sh}
+      - DOCKER_HOST_IP=${DOCKER_HOST_IP:-192.168.0.121}
+      - DOCKER_HOST_NAME=${DOCKER_HOST_NAME:-aurora}
+    ## -------------------------------------------
+    ## -- Change to your specific Volumes Mapping:
+    ## -------------------------------------------
+    volumes:
+      ## ==== Common mapping: ====
+      - /etc/hosts:/etc/hosts
+      - /dev/shm:/dev/shm
+      - /var/run/docker.sock:/var/run/docker.sock
+      #- ./certificates:/home/developer/certificates
+      ## ==== Use $HOME/data-docker as base directory: ====
+      - $HOME/data-docker/java11-non-root/data:/home/developer/data
+      - $HOME/data-docker/java11-non-root/workspace:/home/developer/workspace
+      ## ==== Use current directory as root for mapping Volumes: ====
+      ## (You need to manually create those child directory: ./data, ./workspace, and others)
+      #- ./data:/home/developer/data
+      #- ./workspace:/home/developer/workspace
+      ## ==== App's additional mapping Volumes: ====
+      #- /tmp/.X11-unix:/tmp/.X11-unix
+
+    ## -------------------------------
+    ## -- Change to your specific port
+    ## -------------------------------
+    # ports:
+    #   - "12345:12345"
+    ports:
+      - "3000:3000"
+      - "8282:8282"
+      - "9292:9292"
+
+    ## -----------------------------
+    ## -- Network setup if needed --
+    ## -----------------------------
+    # networks:
+    #  - dev_network
+
+#networks:
+#  dev_network:
+#    external:
+#      name: dev_network
+
+

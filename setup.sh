@@ -57,7 +57,7 @@ APP_BUILD_DIR=${APP_BUILD_DIR:-${APP_HOME}}
 #APP_BUILD_CMD="mvn package -Dmaven.test.skip=true"
 
 #APP_RUN_DIR=$APP_HOME/dist
-#APP_RUN_CMD="java -jar recaster.jar"
+#APP_RUN_CMD="java -jar some-app.jar"
 #APP_RUN_CMD="java -jar target/swagger-spring-1.0.0.jar --server.port=8889"
 
 ## -- Additional APP's RUN arguments: --
@@ -179,7 +179,7 @@ runCommands "${APP_BUILD_DIR}" "${APP_BUILD_CMD}"
 #### ---------------------------------------
 #### ---- APP: RUN (automation setup) ----
 #### ---------------------------------------
-#APP_RUN_CMD="java -jar recaster.jar"
+#APP_RUN_CMD="java -jar some-app.jar"
 #APP_RUN_CMD="java -jar target/swagger-spring-1.0.0.jar --server.port=8889"
 function setupAppRunInfo() {
     case $1 in
@@ -209,8 +209,8 @@ verifyDirectory $APP_RUN_DIR
 #### --- APP: Detect Jar, Main_Class for running: ----
 #### -------------------------------------------------
 function setupAppRunMainClassInfo() {
-    # e.g.APP_RUN_CMD=${APP_RUN_CMD:-"java -jar ${APP_HOME}/recaster.jar"}
-        ## -- Need to auto-detect APP_RUN_JAR and APP_RUN_MAIN_CLASS: --
+    # e.g.APP_RUN_CMD=${APP_RUN_CMD:-"java -jar ${APP_HOME}/some-app.jar"}
+    ## -- Need to auto-detect APP_RUN_JAR and APP_RUN_MAIN_CLASS: --
     if [ "$APP_RUN_JAR" = "" ]; then
         FOUND_JAR=`ls ${APP_RUN_DIR}/*.jar | awk '{print $1}' `
         if [ "$FOUND_JAR" != "" ]; then
@@ -259,7 +259,7 @@ echo "(final)>>> APP_RUN_JAR=$APP_RUN_JAR"
 echo "(final)>>> APP_RUN_ARGS=$APP_RUN_ARGS"
 
 #### ---- RUN Application ----
-# e.g.:  cd ${APP_HOME}/dist && java -jar recaster.jar
+# e.g.:  cd ${APP_HOME}/dist && java -jar some-app.jar
 #
 if [ "${APP_HOME}" != "" ] && [ "${APP_RUN_CMD}" != "" ]; then
     runCommands "${APP_HOME}" "${APP_RUN_CMD}" ${APP_RUN_ARGS}

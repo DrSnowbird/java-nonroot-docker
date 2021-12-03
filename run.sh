@@ -112,7 +112,7 @@ echo $@
 
 ## ------------------------------------------------------------------------
 ## -- Container 'hostname' use: 
-## -- Default= 1 (use HOST_IP)
+## -- Default= 2 (use HOST_NAME)
 ## -- 1: HOST_IP
 ## -- 2: HOST_NAME
 ## ------------------------------------------------------------------------
@@ -828,7 +828,7 @@ if [ ${HOST_USE_IP_OR_NAME} -eq 2 ]; then
     HOSTS_OPTIONS="-h ${HOST_NAME} -v /etc/hosts:/etc/hosts "
 else
     # default use HOST_IP
-    HOSTS_OPTIONS="-h ${HOST_IP} -v /etc/hosts:/etc/hosts "
+    HOSTS_OPTIONS="-h \"${HOST_IP}\" -v /etc/hosts:/etc/hosts "
 fi
 
 ##################################################

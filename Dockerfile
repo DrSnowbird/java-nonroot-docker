@@ -1,11 +1,24 @@
-FROM openjdk:11
+ARG BASE=${BASE:-openjdk:11}
+FROM ${BASE}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
+
+##################################
+#### ---- Tools: setup   ---- ####
+##################################
+ENV LANG C.UTF-8
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+       sudo bash curl wget unzip ca-certificates findutils coreutils gettext pwgen tini; \
+    apt-get autoremove; \
+    rm -rf /var/lib/apt/lists/* && \
+    echo "vm.max_map_count=262144" | tee -a /etc/sysctl.conf
 
 ###################################
 #### ---- Install Maven 3 ---- ####
 ###################################
-ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.3}
+ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.4}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
 RUN curl -sL http://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
@@ -33,20 +46,6 @@ RUN mkdir -p ${GRADLE_INSTALL_BASE} && \
     ln -s ${GRADLE_HOME}/bin/gradle /usr/bin/gradle && \
     ${GRADLE_HOME}/bin/gradle -v && \
     rm -f ${GRADLE_PACKAGE}
-
-#### ------------------------------------------------------------------------
-#### ---- User setup so we don't use root as user ----
-#### ------------------------------------------------------------------------
-ARG USER_ID=${USER_ID:-1000}
-ENV USER_ID=${USER_ID}
-
-ARG GROUP_ID=${GROUP_ID:-1000}
-ENV GROUP_ID=${GROUP_ID}
-    
-ARG USER=${USER:-developer}
-ENV USER=${USER}
-
-ENV WORKSPACE=${HOME}/workspace
 
 ###################################
 #### ---- user: developer ---- ####

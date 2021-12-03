@@ -71,6 +71,9 @@ RUN apt-get update && apt-get install -y sudo && \
 ##### ---- Docker Entrypoint : ---- #####
 #########################################
 COPY --chown=${USER}:${USER} docker-entrypoint.sh /
+COPY --chown=${USER}:${USER} scripts /scripts
+COPY --chown=${USER}:${USER} certificates /certificates
+RUN /scripts/setup_system_certificates.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 #####################################

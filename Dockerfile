@@ -1,5 +1,5 @@
-ARG BASE=${BASE:-openjdk:11}
-FROM ${BASE}
+ARG BASE_IMAGE=${BASE_IMAGE:-openjdk:11}
+FROM ${BASE_IMAGE}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
 

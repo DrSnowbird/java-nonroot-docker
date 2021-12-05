@@ -36,7 +36,6 @@ services:
       #- ./data:/home/developer/data
       #- ./workspace:/home/developer/workspace
       ## ==== App's additional mapping Volumes: ====
-      #- /tmp/.X11-unix:/tmp/.X11-unix
 
     ## -------------------------------
     ## -- Change to your specific port
@@ -45,8 +44,6 @@ services:
     #   - "12345:12345"
     ports:
       - "3000:3000"
-      - "8282:8282"
-      - "9292:9292"
 
     ## -----------------------------
     ## -- Network setup if needed --

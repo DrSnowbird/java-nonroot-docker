@@ -3,8 +3,6 @@ FROM ${BASE}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
 
-MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
-
 #########################
 #### ---- App:  ---- ####
 #########################
@@ -13,6 +11,10 @@ WORKDIR ${HOME:-/home/developer}
 
 ENV APP_HOME=${APP_HOME:-$HOME/app}
 ENV APP_MAIN=${APP_MAIN:-setup.sh}
+
+#########################
+#### ---- App:  ---- ####
+#########################
 COPY --chown=$USER:$USER ./app $HOME/app
 
 #########################################

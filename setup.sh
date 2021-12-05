@@ -7,25 +7,6 @@
 set -e
 env
 
-#### ---------------------
-#### --- APP: LOCATION ---
-#### ---------------------
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-if [[ "$DIR" =~ "app$" ]]; then
-    APP_HOME=${APP_HOME:-${DIR}}
-else
-     # - find possilbe app directory: 
-    #APP_HOME=`realpath $(find ./ -name app)`
-    if [ -d $DIR/app ]; then
-        APP_HOME=${DIR}/app
-    fi
-fi
-
-#### ---------------------------
-#### --- APP: DATA Directory ---
-#### ---------------------------
-APP_DATA_DIR=${APP_DATA_DIR:-$HOME/data}
-
 # -------------------------------
 # ----------- Usage -------------
 # -------------------------------
@@ -33,6 +14,32 @@ APP_DATA_DIR=${APP_DATA_DIR:-$HOME/data}
 # Run the Application:
 #   ./setup.sh
 # -------------------------------
+echo ">>> PWD=$PWD"
+echo ">>> APP_HOME=${APP_HOME}"
+
+#### ---------------------
+#### --- APP: LOCATION ---
+#### ---------------------
+if [ ! -s ${APP_HOME} ]; then
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    if [[ "$DIR" =~ "/app$" ]]; then
+        APP_HOME=${DIR}
+    else
+        # - find possilbe app directory:
+        if [ -s ${HOME}/app ]; then
+            APP_HOME=${HOME}/app
+	else
+            APP_HOME=`realpath $(find ./ -name app)`
+	    if [ "$APP_HOME" != "" ] && [ -s $APP_HOME ]; then
+                echo ">>> Found APP_HOME=${APP_HOME}"
+	    else
+		echo "*** ERROR: Can't find APP_HOME: Abort!"
+		exit 9
+	    fi
+	fi
+    fi
+fi
+
 # -- example --
 #mvn clean
 #mvn package -Dmaven.test.skip=true
@@ -76,6 +83,7 @@ function detectBuildModel() {
          APP_BUILD_MODEL="javac"
     fi 
 }
+
 if [  "$APP_BUILD_MODEL" = "" ]; then
     detectBuildModel 
 fi
@@ -98,6 +106,9 @@ function verifyBuildModelSupported() {
 }
 verifyBuildModelSupported
 
+#### ---------------------------
+#### --- APP: UTILITY        --- 
+#### ---------------------------
 function verifyDirectory() {
     if [ "$1" = "" ] || [ ! -d "$1" ]; then
         echo "*** ERROR ***: NOT_EXISTING: App's mandatory directory: $1: Can't continue! Abort!"

@@ -178,8 +178,7 @@ USER_OPTIONS_NEEDED=1
 ##   Add any additional options here
 ## ------------------------------------------------------------------------
 #MORE_OPTIONS="--privileged=true"
-#MORE_OPTIONS="--ipc=host --shm-size 4g"
-MORE_OPTIONS="--ipc=host"
+MORE_OPTIONS=
 
 ## ------------------------------------------------------------------------
 ## Multi-media optional values:
@@ -395,8 +394,11 @@ function checkHostVolumePath() {
         echo "--- checkHostVolumePath: ${_left}: Not existing!"
         mkdir -p ${_left}
     fi
-    sudo chown -R ${USER_ID}:${USER_ID} ${_left}
-    ls -al ${_left}
+    _SYS_PATHS="/dev /var /etc"
+    if [[ $_SYS_PATHS != *"${_left}"* ]]; then
+        sudo chown -R ${USER_ID}:${USER_ID} ${_left}
+        ls -al ${_left}
+    fi
 }
 
 function generateVolumeMapping() {
@@ -414,7 +416,7 @@ function generateVolumeMapping() {
             if [ "`echo $vol|grep 'volume-'`" != "" ]; then
                 cutomizedVolume $vol
             else
-                debug "************* hasColon=$hasColon"
+                echo "************* hasColon=$hasColon"
                 left=`echo $vol|cut -d':' -f1`
                 right=`echo $vol|cut -d':' -f2`
                 leftHasDot=`echo $left|grep "^\./"`
@@ -423,11 +425,11 @@ function generateVolumeMapping() {
                     debug "******** A. Left HAS Dot pattern: leftHasDot=$leftHasDot"
                     if [[ ${right} == "/"* ]]; then
                         ## -- pattern like: "./data:/containerPath/data"
-                        debug "******* A-1 -- pattern like ./data:/data --"
+                        echo "******* A-1 -- pattern like ./data:/data --"
                         VOLUME_MAP="${VOLUME_MAP} -v `pwd`/${left#./}:${right}"
                     else
                         ## -- pattern like: "./data:data"
-                        debug "******* A-2 -- pattern like ./data:data --"
+                        echo "******* A-2 -- pattern like ./data:data --"
                         VOLUME_MAP="${VOLUME_MAP} -v `pwd`/${left#./}:${DOCKER_VOLUME_DIR}/${right}"
                     fi
                     checkHostVolumePath "`pwd`/${left}"
@@ -439,11 +441,11 @@ function generateVolumeMapping() {
                         debug "******* B-1 ## Has pattern like /data on the left "
                         if [[ ${right} == "/"* ]]; then
                             ## -- pattern like: "/data:/containerPath/data"
-                            debug "****** B-1-a pattern like /data:/containerPath/data --"
+                            echo "****** B-1-a pattern like /data:/containerPath/data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${left}:${right}"
                         else
                             ## -- pattern like: "/data:data"
-                            debug "----- B-1-b pattern like /data:data --"
+                            echo "----- B-1-b pattern like /data:data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${left}:${DOCKER_VOLUME_DIR}/${right}"
                         fi
                         checkHostVolumePath "${left}"
@@ -452,7 +454,7 @@ function generateVolumeMapping() {
                         rightHasAbsPath=`echo $right|grep "^/.*"`
                         debug ">>>>>>>>>>>>> rightHasAbsPath=$rightHasAbsPath"
                         if [[ ${right} == "/"* ]]; then
-                            debug "****** B-2-a pattern like: data:/containerPath/data"
+                            echo "****** B-2-a pattern like: data:/containerPath/data"
                             debug "-- pattern like ./data:/data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${LOCAL_VOLUME_DIR}/${left}:${right}"
                         else
@@ -806,22 +808,6 @@ setupCorporateCertificates
 
 
 ##################################################
-## ---- Setup accessing HOST's /etc/hosts: ---- ##
-##################################################
-## **************** WARNING: *********************
-## **************** WARNING: *********************
-## **************** WARNING: *********************
-#  => this might open up more attack surface since
-#   /etc/hosts has other nodes IP/name information
-# ------------------------------------------------
-if [ ${HOST_USE_IP_OR_NAME} -eq 2 ]; then
-    HOSTS_OPTIONS="-h ${HOST_NAME} -v /etc/hosts:/etc/hosts "
-else
-    # default use HOST_IP
-    HOSTS_OPTIONS="-h ${HOST_IP} -v /etc/hosts:/etc/hosts "
-fi
-
-##################################################
 ##################################################
 ## ----------------- main --------------------- ##
 ##################################################
@@ -849,7 +835,7 @@ case "${BUILD_TYPE}" in
             ${PORT_MAP} \
             ${imageTag} \
             $@
-        ;;
+       ;;
     1)
         #### 1: X11/Desktip container build image type
         #### ---- for X11-based ---- #### 

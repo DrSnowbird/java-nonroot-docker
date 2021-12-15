@@ -72,12 +72,11 @@ build-time:
 	-t $(DOCKER_IMAGE):$(VERSION) .
 
 build-rm:
-	docker build --force-rm --no-cache \
-	-t $(DOCKER_IMAGE):$(VERSION) .
+	docker build --force-rm --no-cache -t $(DOCKER_IMAGE):$(VERSION) .
 
 build:
-	docker build \
-	-t $(DOCKER_IMAGE):$(VERSION) .
+	docker build -t $(DOCKER_IMAGE):$(VERSION) .
+	docker images|grep $(imageTag)
 
 push:
 	docker commit -m "$comment" ${containerID} ${imageTag}:$(VERSION)

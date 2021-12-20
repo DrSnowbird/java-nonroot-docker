@@ -438,7 +438,7 @@ function generateVolumeMapping() {
             if [ "`echo $vol|grep 'volume-'`" != "" ]; then
                 cutomizedVolume $vol
             else
-                echo "************* hasColon=$hasColon"
+                debug "************* hasColon=$hasColon"
                 left=`echo $vol|cut -d':' -f1`
                 right=`echo $vol|cut -d':' -f2`
                 leftHasDot=`echo $left|grep "^\./"`
@@ -447,11 +447,11 @@ function generateVolumeMapping() {
                     debug "******** A. Left HAS Dot pattern: leftHasDot=$leftHasDot"
                     if [[ ${right} == "/"* ]]; then
                         ## -- pattern like: "./data:/containerPath/data"
-                        echo "******* A-1 -- pattern like ./data:/data --"
+                        debug "******* A-1 -- pattern like ./data:/data --"
                         VOLUME_MAP="${VOLUME_MAP} -v `pwd`/${left#./}:${right}"
                     else
                         ## -- pattern like: "./data:data"
-                        echo "******* A-2 -- pattern like ./data:data --"
+                        debug "******* A-2 -- pattern like ./data:data --"
                         VOLUME_MAP="${VOLUME_MAP} -v `pwd`/${left#./}:${DOCKER_VOLUME_DIR}/${right}"
                     fi
                     checkHostVolumePath "`pwd`/${left}"
@@ -463,11 +463,11 @@ function generateVolumeMapping() {
                         debug "******* B-1 ## Has pattern like /data on the left "
                         if [[ ${right} == "/"* ]]; then
                             ## -- pattern like: "/data:/containerPath/data"
-                            echo "****** B-1-a pattern like /data:/containerPath/data --"
+                            debug "****** B-1-a pattern like /data:/containerPath/data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${left}:${right}"
                         else
                             ## -- pattern like: "/data:data"
-                            echo "----- B-1-b pattern like /data:data --"
+                            debug "----- B-1-b pattern like /data:data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${left}:${DOCKER_VOLUME_DIR}/${right}"
                         fi
                         checkHostVolumePath "${left}"
@@ -476,7 +476,7 @@ function generateVolumeMapping() {
                         rightHasAbsPath=`echo $right|grep "^/.*"`
                         debug ">>>>>>>>>>>>> rightHasAbsPath=$rightHasAbsPath"
                         if [[ ${right} == "/"* ]]; then
-                            echo "****** B-2-a pattern like: data:/containerPath/data"
+                            debug "****** B-2-a pattern like: data:/containerPath/data"
                             debug "-- pattern like ./data:/data --"
                             VOLUME_MAP="${VOLUME_MAP} -v ${LOCAL_VOLUME_DIR}/${left}:${right}"
                         else
@@ -545,10 +545,18 @@ function generateEnvVars2() {
         value_trim="`echo $value | sed 's/^[[:space:]]*//'`"
         echo "$key=${value_trim}" 
         ENV_VARS="${ENV_VARS} -e \"${key}=${value_trim}\""
+#        multi_words=`echo "$key"|grep APP_RUN_CMD`
+#        if [ "$multi_words" != "" ]; then
+#            ENV_VARS=$ENV_VARS" -e \"$key=$value_trim\""
+#            ENV_APP_RUN_CMD=" -e \"$key=$value_trim\""
+#        else
+#            ENV_VARS=$ENV_VARS" -e "$key="$value_trim"
+#        fi
     done
 }
-#generateEnvVars2
-#echo ">> ENV_VARS=$ENV_VARS"
+generateEnvVars2
+echo ">> ENV_VARS=$ENV_VARS"
+echo ">> ENV_APP_RUN_CMD=$ENV_APP_RUN_CMD"
 
 function generateEnvVars_v2() {
     while read line; do
@@ -560,8 +568,8 @@ function generateEnvVars_v2() {
     done < <(grep -E "^[[:blank:]]*$1.+[[:blank:]]*=[[:blank:]]*.+[[:blank:]]*" ${DOCKER_ENV_FILE} | grep -v "^#")
     echo "ENV_VARS=$ENV_VARS"
 }
-generateEnvVars_v2
-echo ">> ENV_VARS=$ENV_VARS"
+#generateEnvVars_v2
+#echo ">> ENV_VARS=$ENV_VARS"
 
 function generateEnvVars() {
     if [ "${1}" != "" ]; then
@@ -828,11 +836,29 @@ function setupCorporateCertificates() {
 }
 setupCorporateCertificates
 
+
+##################################################
+## ---- Setup accessing HOST's /etc/hosts: ---- ##
+##################################################
+## **************** WARNING: *********************
+## **************** WARNING: *********************
+## **************** WARNING: *********************
+#  => this might open up more attack surface since
+#   /etc/hosts has other nodes IP/name information
+# ------------------------------------------------
+if [ ${HOST_USE_IP_OR_NAME} -eq 2 ]; then
+    HOSTS_OPTIONS="-h ${HOST_NAME} -v /etc/hosts:/etc/hosts "
+else
+    # default use HOST_IP
+    HOSTS_OPTIONS="-h ${HOST_IP} -v /etc/hosts:/etc/hosts "
+fi
+
 ##################################################
 ##################################################
 ## ----------------- main --------------------- ##
 ##################################################
 ##################################################
+echo ">>> (final) ENV_VARS=${ENV_VARS}"
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo -e ">>> (final) ENV_VARS=${ENV_VARS}"
 
@@ -844,19 +870,9 @@ case "${BUILD_TYPE}" in
     0)
         #### 0: (default) has neither X11 nor VNC/noVNC container build image type
         #### ---- for headless-based / GUI-less ---- ####
-        docker run \
-            --name=${instanceName} \
-            --restart=${RESTART_OPTION} \
-            ${GPU_OPTION} \
-            ${REMOVE_OPTION} ${RUN_OPTION} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} \
-            ${privilegedString} \
-            ${USER_OPTIONS} \
-            ${ENV_VARS} \
-            ${VOLUME_MAP} \
-            ${PORT_MAP} \
-            ${imageTag} \
-            $@
-       ;;
+	#bash -c "docker run --name=${instanceName}  --restart=${RESTART_OPTION}  ${REMOVE_OPTION} ${RUN_OPTION} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS}  ${privilegedString}  ${USER_OPTIONS} ${ENV_VARS} ${VOLUME_MAP}  ${PORT_MAP}  ${imageTag} $* "
+        bash -c "docker run --name=${instanceName} --restart=${RESTART_OPTION} ${GPU_OPTION} ${REMOVE_OPTION} ${RUN_OPTION} ${HOSTS_OPTIONS} ${MISC_OPTIONS} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} ${privilegedString} ${USER_OPTIONS} ${ENV_VARS} ${VOLUME_MAP} ${PORT_MAP} ${imageTag} $@ "
+        ;;
     1)
         #### 1: X11/Desktip container build image type
         #### ---- for X11-based ---- #### 
@@ -866,20 +882,7 @@ case "${BUILD_TYPE}" in
         #X11_OPTION="-e DISPLAY=$DISPLAY -v /dev/shm:/dev/shm -v /tmp/.X11-unix:/tmp/.X11-unix -e DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket"
         X11_OPTION="-e DISPLAY=$DISPLAY -v /dev/shm:/dev/shm -v /tmp/.X11-unix:/tmp/.X11-unix"
         echo "X11_OPTION=${X11_OPTION}"
-        docker run \
-            --name=${instanceName} \
-            --restart=${RESTART_OPTION} \
-            ${GPU_OPTION} \
-            ${MEDIA_OPTIONS} \
-            ${REMOVE_OPTION} ${RUN_OPTION} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} \
-            ${X11_OPTION} \
-            ${privilegedString} \
-            ${USER_OPTIONS} \
-            ${ENV_VARS} \
-            ${VOLUME_MAP} \
-            ${PORT_MAP} \
-            ${imageTag} \
-            $@
+        bash -c "docker run --name=${instanceName} --restart=${RESTART_OPTION} ${GPU_OPTION} ${MEDIA_OPTIONS} ${REMOVE_OPTION} ${RUN_OPTION} ${HOSTS_OPTIONS} ${MISC_OPTIONS} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} ${X11_OPTION} ${privilegedString} ${USER_OPTIONS} ${ENV_VARS} ${VOLUME_MAP} ${PORT_MAP} ${imageTag} $@"
         ;;
     2)
         #### 2: VNC/noVNC container build image type
@@ -891,18 +894,7 @@ case "${BUILD_TYPE}" in
             VNC_RESOLUTION=1920x1080
             ENV_VARS="${ENV_VARS} -e VNC_RESOLUTION=${VNC_RESOLUTION}" 
         fi
-        docker run \
-            --name=${instanceName} \
-            --restart=${RESTART_OPTION} \
-            ${GPU_OPTION} \
-            ${REMOVE_OPTION} ${RUN_OPTION} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} \
-            ${privilegedString} \
-            ${USER_OPTIONS} \
-            ${ENV_VARS} \
-            ${VOLUME_MAP} \
-            ${PORT_MAP} \
-            ${imageTag} \
-            $@
+        bash -c "docker run --name=${instanceName} --restart=${RESTART_OPTION} ${REMOVE_OPTION} ${RUN_OPTION} ${HOSTS_OPTIONS} ${MISC_OPTIONS} ${MORE_OPTIONS} ${CERTIFICATE_OPTIONS} ${privilegedString} ${USER_OPTIONS} ${ENV_VARS} ${VOLUME_MAP} ${PORT_MAP} ${imageTag} $@"
         ;;
 
 esac

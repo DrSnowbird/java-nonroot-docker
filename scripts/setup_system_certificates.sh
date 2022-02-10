@@ -193,7 +193,7 @@ function setupSystemCertificates() {
         if [[ "${cert}" == *"crt" ]]; then
             #sudo cp root.cert.pem /usr/local/share/ca-certificates/root.cert.crt
             cert_basename=$(basename $cert)
-            sudo cp ${cert} ${TARGET_CERTIFICATES_DIR}/${cert}
+            sudo cp ${cert} ${TARGET_CERTIFICATES_DIR}/$(basename ${cert})
         else
             echo "... ignore non-certificate file: $cert"
         fi

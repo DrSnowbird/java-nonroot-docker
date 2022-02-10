@@ -31,16 +31,18 @@ RUN MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e 
 ###################################
 # Ref: https://gradle.org/releases/
 
-ARG GRADLE_INSTALL_BASE=${GRADLE_INSTALL_BASE:-/opt/gradle}
-ARG GRADLE_VERSION=${GRADLE_VERSION:-7.4}
-ARG GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION}
-ENV GRADLE_HOME=${GRADLE_HOME}
-ARG GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip
-ARG GRADLE_PACKAGE_URL=https://services.gradle.org/distributions/${GRADLE_PACKAGE}
+ENV GRADLE_INSTALL_BASE=${GRADLE_INSTALL_BASE:-/opt/gradle}
+ENV GRADLE_VERSION=${GRADLE_VERSION:-7.4}
+ENV GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION}
+ENV GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip
+ENV GRADLE_PACKAGE_URL=https://services.gradle.org/distributions/${GRADLE_PACKAGE}
 
 RUN mkdir -p ${GRADLE_INSTALL_BASE} && \
     cd ${GRADLE_INSTALL_BASE} && \
-    GRADLE_PACKAGE_URL=$(curl -s https://gradle.org/releases/ | grep "Download: " | cut -d'"' -f4 | sort -u | tail -1) && \
+    export GRADLE_VERSION=$(curl -s -k https://gradle.org/releases/ | grep "Download: " | head -1 | cut -d'-' -f2) && \
+    export GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION} && \
+    export GRADLE_PACKAGE_URL=$(curl -s -k https://gradle.org/releases/ | grep "Download: " | head -1 | cut -d'"' -f4) && \
+    export GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip && \
     wget -q --no-check-certificate -c ${GRADLE_PACKAGE_URL} && \
     unzip -d ${GRADLE_INSTALL_BASE} ${GRADLE_PACKAGE} && \
     ls -al ${GRADLE_HOME} && \

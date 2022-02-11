@@ -74,11 +74,13 @@ build-time:
 	-t $(DOCKER_IMAGE):$(VERSION) .
 
 build-rm:
-	docker build --force-rm --no-cache -t $(DOCKER_IMAGE):$(VERSION) .
+	docker build --force-rm --no-cache \
+		-t $(DOCKER_IMAGE):$(VERSION) .
 
 build:
-	docker build -t $(DOCKER_IMAGE):$(VERSION) .
-	docker images|grep $(imageTag)
+	docker build \
+	    -t $(DOCKER_IMAGE):$(VERSION) .
+	docker images | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 
 push:

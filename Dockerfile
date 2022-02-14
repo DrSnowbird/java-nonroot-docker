@@ -45,7 +45,7 @@ RUN mkdir -p ${GRADLE_INSTALL_BASE} && \
     export GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip && \
     wget -q --no-check-certificate -c ${GRADLE_PACKAGE_URL} && \
     unzip -d ${GRADLE_INSTALL_BASE} ${GRADLE_PACKAGE} && \
-    ls -al ${GRADLE_HOME} && \
+    find /opt/gradle && \
     ln -s ${GRADLE_HOME}/bin/gradle /usr/bin/gradle && \
     ${GRADLE_HOME}/bin/gradle -v && \
     rm -f ${GRADLE_PACKAGE}

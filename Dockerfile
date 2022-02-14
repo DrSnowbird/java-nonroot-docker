@@ -22,7 +22,9 @@ ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.4}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
 # curl -sL http://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-RUN MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
+RUN export MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
+    export MAVEN_VERSION=$(curl -s -k https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
+    export MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION} && \
     curl -sL ${MAVEN_PACKAGE_URL} | gunzip | tar x -C /usr/ && \
     ln -s ${MAVEN_HOME} /usr/maven
 

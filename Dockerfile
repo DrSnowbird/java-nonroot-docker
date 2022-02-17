@@ -72,23 +72,45 @@ RUN apt-get update && apt-get install -y sudo && \
     chmod 0440 /etc/sudoers.d/${USER} && \
     chown ${USER}:${USER} -R /home/${USER}
 
-#########################################
-##### ---- Docker Entrypoint : ---- #####
-#########################################
-COPY --chown=${USER}:${USER} docker-entrypoint.sh /
+ENV APP_HOME=${APP_HOME:-$HOME/app}
+ENV APP_MAIN=${APP_MAIN:-setup.sh}
+
+############################################
+##### ---- System: certificates : ---- #####
+############################################
 COPY --chown=${USER}:${USER} scripts /scripts
 COPY --chown=${USER}:${USER} certificates /certificates
 RUN /scripts/setup_system_certificates.sh
+
+#########################
+#### ---- App:  ---- ####
+#########################
+COPY --chown=$USER:$USER ./app $HOME/app
+
+#########################################
+##### ---- Setup: Entry Files  ---- #####
+#########################################
+COPY --chown=${USER}:${USER} docker-entrypoint.sh /
+COPY --chown=${USER}:${USER} ${APP_MAIN} ${APP_HOME}/setup.sh
+RUN sudo chmod +x /docker-entrypoint.sh ${APP_HOME}/setup.sh 
+
+#########################################
+##### ---- Docker Entrypoint : ---- #####
+#########################################
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 #####################################
 ##### ---- user: developer ---- #####
 #####################################
-WORKDIR ${HOME}
+WORKDIR ${APP_HOME}
 USER ${USER}
 
 ######################
 #### (Test only) #####
 ######################
 #CMD ["/bin/bash"]
-CMD ["java",  "-version"]
+######################
+#### (RUN setup) #####
+######################
+CMD ["setup.sh"]
+

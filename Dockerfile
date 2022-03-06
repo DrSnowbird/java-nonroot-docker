@@ -10,7 +10,7 @@ ENV LANG C.UTF-8
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-       sudo bash curl wget unzip ca-certificates findutils coreutils gettext pwgen tini; \
+       sudo bash curl wget unzip ca-certificates findutils vim net-tools coreutils gettext pwgen tini; \
     apt-get autoremove; \
     rm -rf /var/lib/apt/lists/* && \
     echo "vm.max_map_count=262144" | tee -a /etc/sysctl.conf

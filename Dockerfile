@@ -15,13 +15,29 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/* && \
     echo "vm.max_map_count=262144" | tee -a /etc/sysctl.conf
 
+############################################
+##### ---- System: certificates : ---- #####
+############################################
+#COPY --chown=${USER}:${USER} scripts /scripts
+#COPY --chown=${USER}:${USER} certificates /certificates
+COPY scripts /scripts
+COPY certificates /certificates
+RUN /scripts/setup_system_certificates.sh
+
 ###################################
 #### ---- Install Maven 3 ---- ####
 ###################################
-ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.4}
+ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.5}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
 
+RUN export MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
+    export MAVEN_VERSION=$(echo ${MAVEN_PACKAGE_URL}| cut -d'/' -f6) && \
+    export MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION} && \
+    export PATH=${PATH}:${MAVEN_HOME}/bin && \
+    curl -sL ${MAVEN_PACKAGE_URL} | gunzip | tar x -C /usr/ && \
+    ln -s ${MAVEN_HOME} /usr/maven
+    
 RUN export MAVEN_PACKAGE_URL=$(curl -k -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
     export MAVEN_VERSION=$(curl -k -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
     export MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION} && \
@@ -34,7 +50,7 @@ RUN export MAVEN_PACKAGE_URL=$(curl -k -s https://maven.apache.org/download.cgi 
 # Ref: https://gradle.org/releases/
 
 ENV GRADLE_INSTALL_BASE=${GRADLE_INSTALL_BASE:-/opt/gradle}
-ENV GRADLE_VERSION=${GRADLE_VERSION:-7.4}
+ENV GRADLE_VERSION=${GRADLE_VERSION:-7.4.1}
 ENV GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION}
 ENV GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip
 ENV GRADLE_PACKAGE_URL=https://services.gradle.org/distributions/${GRADLE_PACKAGE}

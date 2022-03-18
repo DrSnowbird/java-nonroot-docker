@@ -3,7 +3,6 @@ FROM ${BASE_IMAGE}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
 
-
 ##################################
 #### ---- Tools: setup   ---- ####
 ##################################

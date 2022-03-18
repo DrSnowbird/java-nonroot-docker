@@ -39,14 +39,18 @@ RUN ${SCRIPT_DIR}/setup_system_proxy.sh
 ###################################
 ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.5}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
+ARG MAVEN_PACKAGE=apache-maven-${MAVEN_VERSION}-bin.tar.gz
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
-
+# https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
 RUN export MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \
     export MAVEN_VERSION=$(echo ${MAVEN_PACKAGE_URL}| cut -d'/' -f6) && \
     export MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION} && \
+    export MAVEN_PACKAGE=apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     export PATH=${PATH}:${MAVEN_HOME}/bin && \
     curl -k -sL ${MAVEN_PACKAGE_URL} | gunzip | tar x -C /usr/ && \
-    ln -s ${MAVEN_HOME} /usr/maven
+    ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn && \
+    ${MAVEN_HOME}/bin/mvn -v && \
+    rm -f ${MAVEN_PACKAGE}
 
 ###################################
 #### ---- Install Gradle ---- #####
@@ -61,9 +65,9 @@ ENV GRADLE_PACKAGE_URL=https://services.gradle.org/distributions/${GRADLE_PACKAG
 
 RUN mkdir -p ${GRADLE_INSTALL_BASE} && \
     cd ${GRADLE_INSTALL_BASE} && \
+    export GRADLE_PACKAGE_URL=$(curl -k -s https://gradle.org/releases/ | grep "Download: " | head -1 | cut -d'"' -f4) && \
     export GRADLE_VERSION=$(curl -k -s https://gradle.org/releases/ | grep "Download: " | head -1 | cut -d'-' -f2) && \
     export GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION} && \
-    export GRADLE_PACKAGE_URL=$(curl -k -s https://gradle.org/releases/ | grep "Download: " | head -1 | cut -d'"' -f4) && \
     export GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip && \
     wget -q --no-check-certificate -c ${GRADLE_PACKAGE_URL} && \
     unzip -d ${GRADLE_INSTALL_BASE} ${GRADLE_PACKAGE} && \

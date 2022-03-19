@@ -9,7 +9,7 @@ MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
 ENV LANG C.UTF-8
 ARG LIB_DEV_LIST="apt-utils"
 ARG LIB_BASIC_LIST="curl wget unzip ca-certificates"
-ARG LIB_COMMON_LIST="sudo bzip2 git xz-utils unzip vim net-tools" # coreutils gettext pwgen tini;
+ARG LIB_COMMON_LIST="sudo bzip2 git xz-utils unzip vim net-tools"
 ARG LIB_TOOL_LIST="graphviz"
 
 RUN set -eux; \
@@ -39,7 +39,7 @@ RUN ${SCRIPT_DIR}/setup_system_proxy.sh
 ###################################
 ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.5}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
-ARG MAVEN_PACKAGE=apache-maven-${MAVEN_VERSION}-bin.tar.gz
+ENV MAVEN_PACKAGE=apache-maven-${MAVEN_VERSION}-bin.tar.gz
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
 # https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
 RUN export MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | grep -e "apache-maven.*bin.tar.gz" | head -1|cut -d'"' -f2) && \

@@ -103,7 +103,9 @@ pull:
 		docker pull $(REGISTRY_IMAGE):$(VERSION) ; \
 	fi
 
+## -- deployment mode (daemon service): -- ##
 up:
+	bin/auto-config-all.sh
 	docker-compose up -d
 	docker ps | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
@@ -118,8 +120,13 @@ down-rm:
 	docker ps | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 
+## -- dev/debug -- ##
 run:
-	docker run --name=$(DOCKER_NAME) --restart=$(RESTART_OPTION) $(VOLUME_MAP) $(DOCKER_IMAGE):$(VERSION)
+	bin/auto-config-all.sh
+	./run.sh
+	docker ps | grep $(DOCKER_IMAGE)
+	
+#docker run --name=$(DOCKER_NAME) --restart=$(RESTART_OPTION) $(VOLUME_MAP) $(DOCKER_IMAGE):$(VERSION)
 
 stop:
 	docker stop --name=$(DOCKER_NAME)

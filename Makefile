@@ -23,7 +23,7 @@ BASE_IMAGE := $(BASE_IMAGE)
 
 # The name of the container (default is current directory name)
 #DOCKER_NAME := $(shell echo $${PWD\#\#*/})
-DOCKER_NAME := $(shell echo $${PWD\#\#*/}|tr '[:upper:]' '[:lower:]'|tr "/: " "_" )
+DOCKER_NAME := $(shell echo $${PWD##*/}|tr '[:upper:]' '[:lower:]'|tr "/: " "_" )
 
 ORGANIZATION=$(shell echo $${ORGANIZATION:-openkbs})
 APP_VERSION=$(shell echo $${APP_VERSION:-latest})
@@ -106,7 +106,13 @@ pull:
 ## -- deployment mode (daemon service): -- ##
 up:
 	bin/auto-config-all.sh
-	docker-compose up -d
+	#if [ "$(USER_ID)" != "" ] && [ "$(USER_ID)" != "" ]; then \
+	#	sudo chown -R $(USER_ID):$(GROUP_ID) data workspace ; \
+	#	docker-compose up --remove-orphans -u $(USER_ID):$(GROUP_ID) -d ; \
+	#else \
+	#	docker-compose up --remove-orphans -d ; \
+	#fi
+	docker-compose up --remove-orphans -d
 	docker ps | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 

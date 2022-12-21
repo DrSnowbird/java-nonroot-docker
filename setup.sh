@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 ####################################################################
 #### ---- setup.sh: for application with Java ./app folder ---- ####

@@ -25,6 +25,9 @@ hs_err_pid*
 **data
 **workspace
 
+docker-compose.yml
+.env
+
 *.swp
 
 # certificates
@@ -32,3 +35,4 @@ hs_err_pid*
 
 # tmp files
 **/*BACKUP/
+

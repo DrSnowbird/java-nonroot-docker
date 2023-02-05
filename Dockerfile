@@ -24,6 +24,11 @@ COPY certificates /certificates
 RUN ${SCRIPT_DIR}/setup_system_certificates.sh
 RUN ${SCRIPT_DIR}/setup_system_proxy.sh
 
+############################################
+#### ---- CA-Certifcates variable: ---- ####
+############################################
+ENV REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}
+
 ##################################
 #### ---- Tools: setup   ---- ####
 ##################################

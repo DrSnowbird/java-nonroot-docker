@@ -87,20 +87,40 @@ build-rm:
 	docker build --force-rm --no-cache \
 		-t $(DOCKER_IMAGE):$(VERSION) .
 
+clean:
+	echo "start" $(counter)
+	echo Hello world: $(counter) 
+	if [ $(counter) = 0 ]; then \
+		echo ... do some things to build ; \
+		echo docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
+		counter=1 ;\
+	fi ; \
+	echo "end" $(counter)
+
 build:
+	counter=0
+	@echo "start" $(counter)
+	@echo DOCKER_IMAGE=$(DOCKER_IMAGE)
 	for ver in $(JAVA_VERSION_LIST); do \
-		echo ">>> JAVA_VERSION: $$ver"; \
+		@echo ">>> JAVA_VERSION: $$ver" ; \
 		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
-		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
+		if [ $(counter) = 0 ]; then \
+			docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
+		else \
+			counter=1 ; \
+		fi ; \
 	done
+	docker images | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
-
-
+    
 #build:
-#	docker build \
-#	    -t $(DOCKER_IMAGE):$(VERSION) .
-#	docker images | grep $(DOCKER_IMAGE)
+#	for ver in $(JAVA_VERSION_LIST); do \
+#		echo ">>> JAVA_VERSION: $$ver"; \
+#		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
+#		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
+#	done
 #	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
+#
 
 push:
 	docker commit -m "$comment" ${containerID} ${imageTag}:$(VERSION)

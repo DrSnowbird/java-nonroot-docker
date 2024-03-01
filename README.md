@@ -89,6 +89,59 @@ FROM openkbs/python-nonroot-docker
 # Create your own image from this
 
 ```
-FROM openkbs/java11-non-root
+FROM openkbs/java-nonroot-docker
 ```
 
+# Versions of Components
+```
+~/app$ /usr/scripts/printVersions.sh 
+
+JAVA_HOME=/usr/local/openjdk-23
+java: /usr/local/openjdk-23/bin/java
+
+/usr/local/openjdk-23/bin/java
+openjdk version "23-ea" 2024-09-17
+OpenJDK Runtime Environment (build 23-ea+12-893)
+OpenJDK 64-Bit Server VM (build 23-ea+12-893, mixed mode, sharing)
+/usr/bin/mvn
+Apache Maven 3.9.6 (bc0240f3c744dd6b6ec2920b3cd08dcc295161ae)
+Maven home: /usr/apache-maven-3.9.6
+Java version: 23-ea, vendor: Oracle Corporation, runtime: /usr/local/openjdk-23
+Default locale: en, platform encoding: UTF-8
+OS name: "linux", version: "6.5.0-21-generic", arch: "amd64", family: "unix"
+/usr/bin/gradle
+
+Welcome to Gradle 7.6.4!
+
+Here are the highlights of this release:
+ - Added support for Java 19.
+ - Introduced `--rerun` flag for individual task rerun.
+ - Improved dependency block for test suites to be strongly typed.
+ - Added a pluggable system for Java toolchains provisioning.
+
+For more details see https://docs.gradle.org/7.6.4/release-notes.html
+
+
+------------------------------------------------------------
+Gradle 7.6.4
+------------------------------------------------------------
+
+Build time:   2024-02-05 14:29:18 UTC
+Revision:     e0bb3fc8cefad8432c9033cdfb12dc14facc9dd9
+
+Kotlin:       1.7.10
+Groovy:       3.0.13
+Ant:          Apache Ant(TM) version 1.10.13 compiled on January 4 2023
+JVM:          23-ea (Oracle Corporation 23-ea+12-893)
+OS:           Linux 6.5.0-21-generic amd64
+
+PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
+NAME="Debian GNU/Linux"
+VERSION_ID="11"
+VERSION="11 (bullseye)"
+VERSION_CODENAME=bullseye
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+```

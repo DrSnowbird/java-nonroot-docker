@@ -63,7 +63,9 @@ TIME_START := $(shell date +%s)
 
 .PHONY: clean rmi build push pull up down run stop exec
 
-## -- Java base image version: --
+# -- Java base image versions to build: --
+# -- Only the last value will be designated as the ":latest" tag!
+# JAVA_VERSION_LIST=23-slim-bullseye  23-jdk-slim-bullseye
 JAVA_VERSION_LIST=23-slim-bullseye
 
 debug:
@@ -98,20 +100,13 @@ clean:
 	echo "end" $(counter)
 
 build:
-	counter=0
-	@echo "start" $(counter)
-	@echo DOCKER_IMAGE=$(DOCKER_IMAGE)
 	for ver in $(JAVA_VERSION_LIST); do \
-		@echo ">>> JAVA_VERSION: $$ver" ; \
+		echo ... JAVA_VERSION: $$ver ; \
 		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
-		if [ $(counter) = 0 ]; then \
-			docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
-		else \
-			counter=1 ; \
-		fi ; \
+		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
 	done
 	docker images | grep $(DOCKER_IMAGE)
-	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
+	echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
     
 #build:
 #	for ver in $(JAVA_VERSION_LIST); do \
@@ -125,11 +120,8 @@ build:
 push:
 	docker commit -m "$comment" ${containerID} ${imageTag}:$(VERSION)
 	docker push $(DOCKER_IMAGE):$(VERSION)
-
 	docker tag $(imageTag):$(VERSION) $(REGISTRY_IMAGE):$(VERSION)
-	#docker tag $(imageTag):latest $(REGISTRY_IMAGE):latest
 	docker push $(REGISTRY_IMAGE):$(VERSION)
-	#docker push $(REGISTRY_IMAGE):latest
 	@if [ ! "$(IMAGE_EXPORT_PATH)" = "" ]; then \
 		mkdir -p $(IMAGE_EXPORT_PATH); \
 		docker save $(REGISTRY_IMAGE):$(VERSION) | gzip > $(IMAGE_EXPORT_PATH)/$(DOCKER_NAME)_$(VERSION).tar.gz; \

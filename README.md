@@ -1,30 +1,31 @@
 # Java latest (default 23) OpenJDK with no root access 
-* A Java 11 base Container with `no root access` (except using `sudo ...` and you can remove it using `sudo apt-get remove sudo` to protect your Container). 
+* A latest OpenJDK Java base Container with `no root access` (except using `sudo ...` and you can remove it using `sudo apt-get remove sudo` to protect your Container). 
 ```
 If [ you are looking for such a common requirement as a base Container ]:
    Then [ this one may be for you ]
 ```
 
-# Key Features
+# Key Features:
 ##### (**NEW**) `Auto detect & enable GPU/CUDA`
 ##### (**NEW**) `Auto Corporate Proxy/SSL Certificates setup`
 ##### (**NEW**) `Auto APP Container project creation`
 ##### (**Safety**) `Non-root access inside Container`
 * For deployment, you can disable it for security with (`sudo apt-get remove -y sudo`)
 
-
 # Components:
-* OpenJDK Java 11 base image
-* No root setup: using /home/developer 
+* OpenJDK Java latest (v23 as default).
+* No root setup: using /home/developer:
   * It has sudo for dev phase usage. You can "sudo apt-get remove sudo" to finalize the product image.
   * Note, you should consult Docker security experts on how to secure your Container for your production use!)
 
-# Change OpenJDK version
-
-* To change to a different OpenJDK version, e.g., `openjdk:18`, just update the 1st like of the Dockerfile:
-```
-ARG BASE_IMAGE=${BASE_IMAGE:-openjdk:18}
-```
+# Change OpenJDK version:
+* To change to a different OpenJDK version, e.g., `openjdk:18`, just modify the the Makefile as:
+    ```
+    # (Makefile) - Recommended!
+    # -- Java base image versions to build: --
+    # -- Only the last value will be designated as the ":latest" tag!
+    JAVA_VERSION_LIST=23-slim-bullseye 23-jdk-slim-bullseye
+    ```
 # Build
 * Due to Docker Hub not allowing free hosting services of pre-built images, you have to make a local build to use in your environment
     ```
@@ -90,5 +91,4 @@ FROM openkbs/python-nonroot-docker
 ```
 FROM openkbs/java11-non-root
 ```
-
 

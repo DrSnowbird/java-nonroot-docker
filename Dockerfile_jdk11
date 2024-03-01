@@ -1,5 +1,5 @@
-ARG JAVA_VERSION=${JAVA_VERSION:-23-slim-bullseye}
-FROM openjdk:${JAVA_VERSION}
+ARG BASE_IMAGE=${BASE_IMAGE:-openjdk:11}
+FROM ${BASE_IMAGE}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
 
@@ -45,7 +45,7 @@ RUN apt-get update -y && \
 ###################################
 #### ---- Install Maven 3 ---- ####
 ###################################
-ENV MAVEN_VERSION=${MAVEN_VERSION:-3.9.6}
+ENV MAVEN_VERSION=${MAVEN_VERSION:-3.8.5}
 ENV MAVEN_HOME=/usr/apache-maven-${MAVEN_VERSION}
 ENV MAVEN_PACKAGE=apache-maven-${MAVEN_VERSION}-bin.tar.gz
 ENV PATH=${PATH}:${MAVEN_HOME}/bin
@@ -67,7 +67,7 @@ RUN export MAVEN_PACKAGE_URL=$(curl -s https://maven.apache.org/download.cgi | g
 # Ref: https://gradle.org/releases/
 
 ENV GRADLE_INSTALL_BASE=${GRADLE_INSTALL_BASE:-/opt/gradle}
-ENV GRADLE_VERSION=${GRADLE_VERSION:-8.6}
+ENV GRADLE_VERSION=${GRADLE_VERSION:-7.4.1}
 ENV GRADLE_HOME=${GRADLE_INSTALL_BASE}/gradle-${GRADLE_VERSION}
 ENV GRADLE_PACKAGE=gradle-${GRADLE_VERSION}-bin.zip
 ENV GRADLE_PACKAGE_URL=https://services.gradle.org/distributions/${GRADLE_PACKAGE}

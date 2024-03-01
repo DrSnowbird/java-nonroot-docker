@@ -63,6 +63,9 @@ TIME_START := $(shell date +%s)
 
 .PHONY: clean rmi build push pull up down run stop exec
 
+## -- Java base image version: --
+JAVA_VERSION_LIST=23-slim-bullseye
+
 debug:
 	@echo "makefile_path="$(mkfile_path)
 	@echo "current_dir="$(current_dir)
@@ -85,10 +88,19 @@ build-rm:
 		-t $(DOCKER_IMAGE):$(VERSION) .
 
 build:
-	docker build \
-	    -t $(DOCKER_IMAGE):$(VERSION) .
-	docker images | grep $(DOCKER_IMAGE)
+	for ver in $(JAVA_VERSION_LIST); do \
+		echo ">>> JAVA_VERSION: $$ver"; \
+		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
+		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
+	done
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
+
+
+#build:
+#	docker build \
+#	    -t $(DOCKER_IMAGE):$(VERSION) .
+#	docker images | grep $(DOCKER_IMAGE)
+#	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 
 push:
 	docker commit -m "$comment" ${containerID} ${imageTag}:$(VERSION)

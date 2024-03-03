@@ -66,7 +66,7 @@ TIME_START := $(shell date +%s)
 # -- Java base image versions to build: --
 # -- Only the last value will be designated as the ":latest" tag!
 # JAVA_VERSION_LIST=23-slim-bullseye  23-jdk-slim-bullseye
-JAVA_VERSION_LIST=23-slim-bullseye
+JAVA_VERSION_LIST=11 23-slim-bullseye
 
 debug:
 	@echo "makefile_path="$(mkfile_path)
@@ -88,8 +88,11 @@ build-time:
 build-rm:
 	docker build --force-rm --no-cache \
 		-t $(DOCKER_IMAGE):$(VERSION) .
+	docker images | grep $(DOCKER_IMAGE)
+	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 
-clean:
+
+try:
 	echo "start" $(counter)
 	echo Hello world: $(counter) 
 	if [ $(counter) = 0 ]; then \
@@ -121,7 +124,9 @@ push:
 	docker commit -m "$comment" ${containerID} ${imageTag}:$(VERSION)
 	docker push $(DOCKER_IMAGE):$(VERSION)
 	docker tag $(imageTag):$(VERSION) $(REGISTRY_IMAGE):$(VERSION)
+	#docker tag $(imageTag):latest $(REGISTRY_IMAGE):latest
 	docker push $(REGISTRY_IMAGE):$(VERSION)
+	#docker push $(REGISTRY_IMAGE):latest
 	@if [ ! "$(IMAGE_EXPORT_PATH)" = "" ]; then \
 		mkdir -p $(IMAGE_EXPORT_PATH); \
 		docker save $(REGISTRY_IMAGE):$(VERSION) | gzip > $(IMAGE_EXPORT_PATH)/$(DOCKER_NAME)_$(VERSION).tar.gz; \
@@ -153,6 +158,7 @@ up:
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 
 down:
+	./stop.sh
 	docker-compose down
 	#docker ps | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
@@ -168,6 +174,7 @@ run:
 		bin/auto-config-all.sh; \
 	fi
 	./run.sh
+	docker ps | grep $(DOCKER_IMAGE)
 	#docker run --name=$(DOCKER_NAME) --restart=$(RESTART_OPTION) $(VOLUME_MAP) $(DOCKER_IMAGE):$(VERSION)
 
 stop:

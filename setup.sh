@@ -7,6 +7,17 @@
 set -e
 env
 
+#### ---------------------------------------------
+#### --- APP: Type: python, java, nodejs, etc. --- 
+#### ---------------------------------------------
+#### MANDATORY: ONLY choose one here
+#PROGRAM_TYPE="py"
+PROGRAM_TYPE="java"
+#PROGRAM_TYPE="js"
+
+# -- debug use only --
+verify=1
+
 # -------------------------------
 # ----------- Usage -------------
 # -------------------------------
@@ -110,6 +121,9 @@ verifyBuildModelSupported
 #### --- APP: UTILITY        --- 
 #### ---------------------------
 function verifyDirectory() {
+    if [ $verify -eq 0 ]; then
+        return
+    fi
     if [ "$1" = "" ] || [ ! -d "$1" ]; then
         echo "*** ERROR ***: NOT_EXISTING: App's mandatory directory: $1: Can't continue! Abort!"
         exit 1
@@ -117,6 +131,9 @@ function verifyDirectory() {
 }
 
 function verifyFile() {
+    if [ $verify -eq 0 ]; then
+        return
+    fi
     if [ "$1" != "" ] && [ ! -s "$1" ]; then
         echo "*** ERROR ***: NOT_FOUND: App's mandatory file: $1: Can't continue! Abort!"
         exit 1
@@ -133,11 +150,16 @@ function verifyCommand() {
 }
 
 function runCommands() {
+    if [ $verify -eq 0 ]; then
+        return
+    fi
+    CD_CMD=$1
+    EXE_CMD=$2
     if [ "$1" != "" ] && [ -d "$1" ]; then
         cd $1
         shift
     fi
-    if [ "$1" != "" ]; then
+    if [ "$2" != "" ]; then
         /bin/bash -c "$*"
     fi
 }

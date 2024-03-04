@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=${JAVA_VERSION:-23-slim-bullseye}
+ARG JAVA_VERSION=${JAVA_VERSION:-23-slim}
 FROM openjdk:${JAVA_VERSION}
 
 MAINTAINER DrSnowbird "DrSnowbird@openkbs.org"
@@ -16,8 +16,8 @@ ENV SCRIPT_DIR=${SCRIPT_DIR:-$INSTALL_DIR/scripts}
 ENV LANG C.UTF-8
 ARG LIB_BASIC_LIST="curl wget unzip ca-certificates"
 RUN set -eux; \
-    apt-get update -y && \
-    apt-get install -y ${LIB_BASIC_LIST} 
+    apt update -y && \
+    apt install -y ${LIB_BASIC_LIST} 
     
 COPY ./scripts ${SCRIPT_DIR}
 COPY certificates /certificates
@@ -136,9 +136,9 @@ USER ${USER}
 ######################
 #### (Test only) #####
 ######################
-#CMD ["/bin/bash"]
+CMD ["/bin/bash"]
 ######################
 #### (RUN setup) #####
 ######################
-CMD ["setup.sh"]
+#CMD ["setup.sh"]
 

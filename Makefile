@@ -63,10 +63,10 @@ TIME_START := $(shell date +%s)
 
 .PHONY: clean rmi build push pull up down run stop exec
 
-# -- Java base image versions to build: --
+# -- Build Multi image versions: --
 # -- Only the last value will be designated as the ":latest" tag!
 # JAVA_VERSION_LIST=23-slim-bullseye  23-jdk-slim-bullseye
-JAVA_VERSION_LIST=11 23-slim-bullseye
+JAVA_VERSION_LIST=11 23-slim 23-slim-bullseye
 
 debug:
 	@echo "makefile_path="$(mkfile_path)
@@ -86,8 +86,11 @@ build-time:
 	-t $(DOCKER_IMAGE):$(VERSION) .
 
 build-rm:
-	docker build --force-rm --no-cache \
-		-t $(DOCKER_IMAGE):$(VERSION) .
+	for ver in $(JAVA_VERSION_LIST); do \
+		echo ... JAVA_VERSION: $$ver ; \
+		docker build --force-rm --no-cache -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
+		docker build --force-rm --no-cache -t $(DOCKER_IMAGE):latest --build-arg JAVA_VERSION=$$ver .  ; \
+	done
 	docker images | grep $(DOCKER_IMAGE)
 	@echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
 

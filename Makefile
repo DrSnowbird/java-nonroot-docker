@@ -65,8 +65,8 @@ TIME_START := $(shell date +%s)
 
 # -- Build Multi image versions: --
 # -- Only the last value will be designated as the ":latest" tag!
-# JAVA_VERSION_LIST=23-slim-bullseye  23-jdk-slim-bullseye
-JAVA_VERSION_LIST=11 23-slim 23-slim-bullseye
+# BUILD_VERSIONS=23-slim-bullseye  23-jdk-slim-bullseye
+BUILD_VERSIONS=11 23-slim 23-slim-bullseye
 
 debug:
 	@echo "makefile_path="$(mkfile_path)
@@ -106,7 +106,7 @@ try:
 	echo "end" $(counter)
 
 build:
-	for ver in $(JAVA_VERSION_LIST); do \
+	for ver in $(BUILD_VERSIONS); do \
 		echo ... JAVA_VERSION: $$ver ; \
 		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
 		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
@@ -115,7 +115,7 @@ build:
 	echo ">>> Total Dockder images Build using time in seconds: $$(($$(date +%s)-$(TIME_START))) seconds"
     
 #build:
-#	for ver in $(JAVA_VERSION_LIST); do \
+#	for ver in $(BUILD_VERSIONS); do \
 #		echo ">>> JAVA_VERSION: $$ver"; \
 #		docker build -t $(DOCKER_IMAGE):$$ver --build-arg JAVA_VERSION=$$ver .  ; \
 #		docker build -t $(DOCKER_IMAGE) --build-arg JAVA_VERSION=$$ver .  ; \
